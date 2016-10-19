@@ -10,23 +10,25 @@ from flask import request
 
 from response import Response
 from word import *
+import os, sys
 
+path = os.path.abspath(os.path.dirname(sys.argv[0]))
 app = Flask(__name__)
 FAILED = "failure"
 SUCCEED = "successful"
 MAX_WORD = 200  # 句子最大长度
 MIN_WORD = 1  # 句子最少长度
 
-KEY_WORD = load_key_words("train/new_word.txt")  # tool.py脚本产生的关键字列表，用于提取特征
-MODEL_NAME = "train/model/gnb.model"  # 已经训练好的数据集
+KEY_WORD = load_key_words(path + "/train/new_word.txt")  # tool.py脚本产生的关键字列表，用于提取特征
+MODEL_NAME = path + "/train/model/gnb.model"  # 已经训练好的数据集
 
-SENTENCE_FILE = open("logs/sentence.log", "a")  # 接受到的句子日志
+SENTENCE_FILE = open(path + "/logs/sentence.log", mode="a+")  # 接受到的句子日志
 
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s  %(levelname)s %(message)s',
     datefmt='%a, %d %b %Y %H:%M:%S',
-    filename='logs/app.log',
+    filename=path + '/logs/app.log',
     filemode='a'
 )
 
@@ -83,28 +85,28 @@ def mood():
     """
     ip = request.remote_addr
     sentence = request.args.get("sentence")
+    print sentence
     if not sentence:
         return Response(FAILED, None, info="Miss Params").to_json()
     if len(sentence) > MAX_WORD or len(sentence) < MIN_WORD:
         return Response(FAILED, None, info="The Sentence "
                                            "is too long.It should be %s to %s." % (MIN_WORD, MAX_WORD)).to_json()
     result = get_mood(sentence, key_word=KEY_WORD, model_name=MODEL_NAME)
-    print("ip: %s | sentence: %s | positive: %s | negative: %s | neutral: %s" % (ip, sentence,
-                                                                                 result["positive"], result["negative"],
-                                                                                 result["neutral"]), file=SENTENCE_FILE)
+    # print("ip: %s | sentence: %s | positive: %s | negative: %s | neutral: %s" % (ip, sentence,
+    #                                                                              result["positive"], result["negative"],
+    #                                                                              result["neutral"]), file=SENTENCE_FILE)
     SENTENCE_FILE.flush()
     return Response(SUCCEED, result).to_json()
 
-
 if __name__ == "__main__":
     port = 8888
-    DEBUG = None
+    DEBUG = True
     if not DEBUG:
-        host ="0.0.0.0"
+        host = "0.0.0.0"
     else:
         host = "localhost"
-    print("listen %s port: %s"%(host,port))
-    app.run(host=host,port=port,debug=DEBUG)
+    print("listen %s port: %s" % (host, port))
+    app.run(host=host, port=port, debug=DEBUG)
     SENTENCE_FILE.close()
     # lines = load_key_words("train/word.txt")
     # print(lines)

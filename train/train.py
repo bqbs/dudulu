@@ -35,12 +35,12 @@ def load_key_words(file_path):
 
 def main():
     sentence = load_sentence("train.txt")
-    key_words = load_key_words("word.txt")
+    key_words = load_key_words("new_word.txt")
     all_data = []
     for sen in sentence:
         while 1:
             print(sen + " you choose:1.积极，2消极，3，中立")
-            choose = input(">>")
+            choose = raw_input(">>")
             try:
                 choose = int(choose)
             except:

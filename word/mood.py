@@ -12,7 +12,8 @@ NEUTRAL = 3  # 客观词语
 
 
 def load_key_words(file_path):
-    with open(file_path, encoding="utf-8") as fp:
+    # with open(file_path, encoding="utf-8") as fp:
+    with open(file_path) as fp:
         lines = fp.readlines()
         lines = [line.replace("\n", "") for line in lines]
     return lines
@@ -67,19 +68,21 @@ def _get_feature(sentence, key_word):
     feature = [0 for _ in range(size)]
     for index in range(size):
         word = key_word[index]
-        value = sentence.find(word)  # 单词最初出现的位置
+        print word
+        value = sentence.find(word.decode("utf-8"))  # 单词最初出现的位置
         if value != -1:
             feature[index] = 1
     return np.array(feature)
 
+
 def get_mood(sentence, key_word, model_name):
     feature = _get_feature(sentence, key_word)
-    gnb = joblib.load(model_name)
+    gnb = joblib.load(model_name,)
     pre_y = gnb.predict([feature])
     result = {
-        "positive":0,
-        "negative":0,
-        "neutral":0
+        "positive": 0,
+        "negative": 0,
+        "neutral": 0
     }
     try:
         if pre_y[0] == POSITIVE:

@@ -6,10 +6,15 @@ import jieba
 import numpy as np
 from sklearn.externals import joblib
 from sklearn.naive_bayes import GaussianNB
+from io import open
+import sys
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 split_tag = "----"
 jieba.load_userdict("word.txt")
+
 
 def load_key_words(file_path):
     with open(file_path, encoding="utf-8") as fp:
@@ -44,6 +49,7 @@ def _get_feature(sentence, key_word):
         value = sentence.find(word)  # 单词最初出现的位置
         if value != -1:
             feature[index] = 1
+
     return np.array(feature)
 
 
@@ -54,6 +60,7 @@ def get_feature(path, kw_list):
     with open(path, encoding="utf-8") as fp:
         for line in fp:
             temp = line.strip()
+
             try:
                 s = temp.split(split_tag)
                 sentence = s[0]
@@ -73,13 +80,15 @@ def script_run():
     for word in kw_list:
         fp.write(word + "\n")
     fp.close()
-   # kw_list = load_key_words("word.txt")
+    # kw_list = load_key_words("word.txt")
     feature, label = get_feature("train.txt", kw_list)
-    gnb = GaussianNB()
-    gnb = gnb.fit(feature, label)
-    joblib.dump(gnb, 'model/gnb.model')
-    print("训练完成")
-    # print(feature,label)
+    if feature and label:
+        gnb = GaussianNB()
+        gnb = gnb.fit(feature, label)
+        joblib.dump(gnb, 'model/gnb.model')
+        print "训练完成"
+    else:
+        print "训练失败"
 
 
 def test(test_data, model_name):
@@ -94,5 +103,5 @@ def test(test_data, model_name):
 
 
 if __name__ == "__main__":
-    #script_run()
-    test(["叼你啊", "你去吃屎啦", "我叼你啊", "萌萌哒","现在的年轻人，连点小事都做不好","想摸你屁股","默默看书"], "model/gnb.model")
+    # script_run()
+    test(["叼你啊", "你去吃屎啦", "我叼你啊", "萌萌哒", "现在的年轻人，连点小事都做不好", "想摸你屁股", "默默看书"], "model/gnb.model")

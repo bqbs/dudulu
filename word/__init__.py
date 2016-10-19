@@ -1,3 +1,4 @@
+# coding:utf-8
 # 这个包用于编写处理文本的对象与函数
 
 from .count import word_count
